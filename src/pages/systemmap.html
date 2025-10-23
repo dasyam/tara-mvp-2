@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>System Map • Tara</title>
+  <link rel="stylesheet" href="/src/styles/tailwind.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <main class="max-w-md mx-auto p-6">
+    <h1 class="text-xl font-semibold mb-4">🗺 System Map</h1>
+    <div class="grid grid-cols-4 gap-2">
+      <!-- Placeholder 4x4 grid -->
+      <div class="h-16 bg-white rounded-xl shadow-sm col-span-1"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+      <div class="h-16 bg-white rounded-xl shadow-sm"></div>
+    </div>
+  </main>
+
+  <nav class="fixed bottom-0 inset-x-0 border-t bg-white">
+    <div class="max-w-md mx-auto grid grid-cols-4 text-center">
+      <a class="py-3" href="/src/pages/home.html">Home</a>
+      <a class="py-3 text-brand font-medium" href="/src/pages/systemmap.html">Map</a>
+      <a class="py-3" href="/src/pages/insights.html">Insights</a>
+      <a class="py-3" href="/src/pages/profile.html">Profile</a>
+    </div>
+  </nav>
+
+  <script type="module">
+    import { requireAuth } from "../js/app.js";
+    await requireAuth();
+  </script>
+</body>
+</html>

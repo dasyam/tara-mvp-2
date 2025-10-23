@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Insights • Tara</title>
+  <link rel="stylesheet" href="/src/styles/tailwind.css">
+</head>
+<body class="bg-white min-h-screen">
+  <main class="max-w-md mx-auto p-6">
+    <h1 class="text-xl font-semibold mb-4">💡 Insights</h1>
+    <div class="rounded-2xl border p-4">
+      <div class="font-medium">Your system will evolve weekly.</div>
+      <div class="text-sm text-gray-600">We’ll suggest small tweaks based on your daily sleep-quality rating.</div>
+    </div>
+  </main>
+
+  <nav class="fixed bottom-0 inset-x-0 border-t bg-white">
+    <div class="max-w-md mx-auto grid grid-cols-4 text-center">
+      <a class="py-3" href="/src/pages/home.html">Home</a>
+      <a class="py-3" href="/src/pages/systemmap.html">Map</a>
+      <a class="py-3 text-brand font-medium" href="/src/pages/insights.html">Insights</a>
+      <a class="py-3" href="/src/pages/profile.html">Profile</a>
+    </div>
+  </nav>
+
+  <script type="module">
+    import { requireAuth } from "../js/app.js";
+    await requireAuth();
+  </script>
+</body>
+</html>

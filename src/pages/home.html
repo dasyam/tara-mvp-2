@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Home • Tara</title>
+  <link rel="stylesheet" href="/src/styles/tailwind.css">
+</head>
+<body class="bg-white min-h-screen">
+  <main class="max-w-md mx-auto p-6 space-y-6">
+    <header class="flex items-center justify-between">
+      <h1 class="text-xl font-semibold">🌤 My System Today</h1>
+      <a class="text-sm text-brand underline" href="/src/pages/profile.html">Profile</a>
+    </header>
+
+    <section class="space-y-3">
+      <div class="text-sm text-gray-700">How refreshed did you feel?</div>
+      <div id="emoji-row" class="flex justify-between text-2xl">
+        <button data-v="1">😞</button>
+        <button data-v="2">😐</button>
+        <button data-v="3">🙂</button>
+        <button data-v="4">😄</button>
+        <button data-v="5">🌞</button>
+      </div>
+      <button id="submit-rating" disabled class="w-full bg-brand text-white rounded-xl py-3">Submit</button>
+      <div id="ripple" class="transition-opacity duration-500 opacity-0 text-brand text-sm">Saved. Thanks!</div>
+    </section>
+
+    <section class="space-y-2">
+      <div class="text-sm font-medium">🔮 Active System Loops</div>
+      <div id="nodes" class="grid grid-cols-1 gap-3"></div>
+    </section>
+  </main>
+
+  <nav class="fixed bottom-0 inset-x-0 border-t bg-white">
+    <div class="max-w-md mx-auto grid grid-cols-4 text-center">
+      <a class="py-3 text-brand font-medium" href="/src/pages/home.html">Home</a>
+      <a class="py-3" href="/src/pages/systemmap.html">Map</a>
+      <a class="py-3" href="/src/pages/insights.html">Insights</a>
+      <a class="py-3" href="/src/pages/profile.html">Profile</a>
+    </div>
+  </nav>
+
+  <script type="module">
+    import { supabase } from "../lib/supabase.js";
+
+    // Turn the magic-link code in the URL into a real session
+    (async () => {
+      const url = window.location.href;
+      if (url.includes("code=") || url.includes("access_token=")) {
+        const { error } = await supabase.auth.exchangeCodeForSession(url);
+        // Optional: clean the URL after exchange
+        if (!error) {
+          const clean = new URL(`${window.location.origin}/src/pages/home.html`);
+          window.history.replaceState({}, "", clean);
+        }
+      }
+      })();
+    import { requireAuth } from "../js/app.js";
+    import { renderNodes, setupEmojiRow } from "../js/home.js";
+    await requireAuth();
+    renderNodes();
+    setupEmojiRow();
+  </script>
+</body>
+</html>

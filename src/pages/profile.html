@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profile • Tara</title>
+  <link rel="stylesheet" href="/src/styles/tailwind.css">
+</head>
+<body class="bg-white min-h-screen">
+  <main class="max-w-md mx-auto p-6 space-y-4">
+    <h1 class="text-xl font-semibold">⚙️ Profile</h1>
+    <div id="email" class="text-sm text-gray-700"></div>
+    <button id="logout" class="bg-gray-100 rounded-xl px-4 py-2">Logout</button>
+  </main>
+
+  <nav class="fixed bottom-0 inset-x-0 border-t bg-white">
+    <div class="max-w-md mx-auto grid grid-cols-4 text-center">
+      <a class="py-3" href="/src/pages/home.html">Home</a>
+      <a class="py-3" href="/src/pages/systemmap.html">Map</a>
+      <a class="py-3" href="/src/pages/insights.html">Insights</a>
+      <a class="py-3 text-brand font-medium" href="/src/pages/profile.html">Profile</a>
+    </div>
+  </nav>
+
+  <script type="module">
+    import { requireAuth, onLogout } from "../js/app.js";
+    const session = await requireAuth();
+    document.querySelector('#email').textContent = session.user.email;
+    document.querySelector('#logout').addEventListener('click', onLogout);
+  </script>
+</body>
+</html>

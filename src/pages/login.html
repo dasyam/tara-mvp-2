@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login • Tara</title>
+  <link rel="stylesheet" href="/src/styles/tailwind.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <main class="max-w-md mx-auto p-6 pt-10">
+    <h1 class="text-2xl font-semibold mb-4">Sign in to Tara</h1>
+    <p class="text-sm text-gray-600 mb-6">We’ll email you a magic link to sign in.</p>
+    <form id="login-form" class="space-y-3">
+      <input id="email" type="email" required placeholder="you@example.com"
+        class="w-full border rounded-xl px-4 py-3" />
+      <button type="submit"
+        class="w-full bg-brand text-white rounded-xl py-3 font-medium hover:opacity-95">Send magic link</button>
+    </form>
+    <p id="msg" class="mt-4 text-sm"></p>
+  </main>
+
+  <script type="module">
+    import { supabase } from "../lib/supabase.js";
+    import { emitEvent, initAnalytics } from "../lib/analytics.js";
+    initAnalytics();
+
+    const form = document.getElementById('login-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const { error } = await supabase.auth.signInWithOtp({ 
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/src/pages/home.html`
+        } 
+      });
+      document.getElementById('msg').textContent = error ? ('Error: ' + error.message) : 'Check your email for a magic link.';
+      emitEvent(error ? "login_error" : "login_start", { email_masked: email.replace(/(.).+(@.*)/,'$1***$2') });
+    });
+
+    // If session exists, go home
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) window.location.href = "/src/pages/home.html";
+  </script>
+</body>
+</html>
