@@ -42,7 +42,7 @@
   </nav>
 
   <script type="module">
-    import { supabase } from "../lib/supabase.js";
+    import { supabase } from "./src/lib/supabase.js";
 
     // Turn the magic-link code in the URL into a real session
     (async () => {
@@ -57,8 +57,8 @@
         }
       }
       })();
-    import { requireAuth } from "../js/app.js";
-    import { renderNodes, setupEmojiRow } from "../js/home.js";
+    import { requireAuth } from "./src/js/app.js";
+    import { renderNodes, setupEmojiRow } from "./src/js/home.js";
     await requireAuth();
     renderNodes();
     setupEmojiRow();

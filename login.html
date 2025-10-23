@@ -20,8 +20,8 @@
   </main>
 
   <script type="module">
-    import { supabase } from "../lib/supabase.js";
-    import { emitEvent, initAnalytics } from "../lib/analytics.js";
+    import { supabase } from "./src/lib/supabase.js";
+    import { emitEvent, initAnalytics } from "./src/lib/analytics.js";
     initAnalytics();
 
     const form = document.getElementById('login-form');
