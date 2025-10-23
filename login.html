@@ -31,7 +31,7 @@
       const { error } = await supabase.auth.signInWithOtp({ 
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/src/pages/home.html`
+          emailRedirectTo: `${window.location.origin}/home.html`
         } 
       });
       document.getElementById('msg').textContent = error ? ('Error: ' + error.message) : 'Check your email for a magic link.';
