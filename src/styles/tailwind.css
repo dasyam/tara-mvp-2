@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes softpulse {
+  0%,100% { transform: scale(1); opacity: 0.95 }
+  50%     { transform: scale(1.02); opacity: 1 }
+}

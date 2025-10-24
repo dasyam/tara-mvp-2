@@ -1,1 +1,6 @@
-[]
+[
+  { "category": "Sleep",   "time_block": "Evening", "name": "Evening Unwind",  "tagline": "Digital cutoff improves sleep", "color": "blue",   "active": true },
+  { "category": "Sleep",   "time_block": "Night",   "name": "Bedroom Setup",   "tagline": "Cool, dark, quiet room",         "color": "blue",   "active": true },
+  { "category": "Mind",    "time_block": "Morning", "name": "Morning Calm",    "tagline": "10-min walk improves focus",     "color": "purple", "active": true },
+  { "category": "Food",    "time_block": "Day",     "name": "Caffeine Cutoff", "tagline": "Stop by 2 PM",                    "color": "green",  "active": true }
+]
