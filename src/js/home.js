@@ -5,10 +5,10 @@ import seedNodes from "../data/seed-glowing-nodes.json";
 
 const EMOJI_MAP = ["😞","😐","🙂","😄","🌞"]; // 1..5
 
-function todayISO() {
-  const d = new Date();
-  return d.toISOString().slice(0, 10);
+function todayIST() {
+  return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }); // YYYY-MM-DD
 }
+
 
 export async function renderNodes() {
   const listEl = document.querySelector("#nodes");
@@ -61,17 +61,29 @@ export function setupEmojiRow() {
       const user_id = session?.user?.id;
       const payload = {
         user_id,
-        date: todayISO(),
+        date: todayIST(),
         metric: "sleep_quality",
         value: ui.selected
       };
 
       const { error } = await supabase.from("feedback").insert(payload);
-      if (error && !String(error.message).includes("duplicate")) {
-        alert("Could not save rating.");
-        submit.disabled = false;
-        return;
+      if (error) {
+        // Handle duplicate gracefully (Postgres code 23505)
+        if ((error.code && error.code.includes("23505")) || String(error.message).includes("duplicate")) {
+          alert("Already recorded for today ✓");
+        } else {
+          alert("Could not save rating.");
+          console.error(error);
+          submit.disabled = false;
+          return;
+        }
+      } else {
+        // Success: disable button and change label
+        submit.disabled = true;
+        submit.classList.add("opacity-60", "cursor-not-allowed");
+        submit.textContent = "Recorded for today ✓";
       }
+
 
       emitEvent("rating_submit", { value: ui.selected });
 
