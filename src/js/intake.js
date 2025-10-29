@@ -97,13 +97,17 @@ async function insertTimeline(user_id, goal, bedtime_window, timeline_json) {
 
 async function upsertRituals(user_id, rituals = []) {
   for (const r of rituals) {
+    const colorSafe =
+      (r.color && typeof r.color === 'string' && r.color.trim().length > 0)
+        ? r.color
+        : '#8b5cf6';
     const row = {
       user_id,
       name: r.name,
       tagline: r.tagline,
       category: r.category,
       time_block: r.time_block,
-      color: r.color || null,
+      color: colorSafe,
       active: true
     };
     const { error } = await supabase
