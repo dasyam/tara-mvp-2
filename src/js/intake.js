@@ -4,7 +4,7 @@ import { emitEvent } from './events.js';
 const form = document.getElementById('intakeForm');
 const banner = document.getElementById('intakeBanner');
 const submitBtn = document.getElementById('submitBtn');
-const skipBtn = document.getElementById('skipBtn');
+// const skipBtn = document.getElementById('skipBtn');
 const progress = document.getElementById('progress');
 const progressText = document.getElementById('progressText');
 
@@ -24,7 +24,7 @@ function hideBanner() {
 
 function setBusy(busy, label = 'Submitting...') {
   submitBtn.disabled = busy;
-  skipBtn.disabled = busy;
+  // skipBtn.disabled = busy;
   progress.classList.toggle('hidden', !busy);
   progressText.textContent = label;
 }
@@ -213,46 +213,7 @@ form?.addEventListener('submit', async (e) => {
   }
 });
 
-skipBtn?.addEventListener('click', async () => {
-  hideBanner();
-  const user = await getUserOrRedirect();
-  if (!user) return;
 
-  const goalEl = document.getElementById('goal');
-  const windowEl = document.getElementById('bedtimeWindow');
-  const nameEl = document.getElementById('preferredName');
-
-  const values = {
-    preferred_name: nameEl.value.trim() || null,
-    goal: goalEl.value.trim() || 'Fall asleep faster',
-    bedtime_window: windowEl.value.trim() || '22:30–23:30'
-  };
-
-  try {
-    setBusy(true, 'Seeding defaults...');
-    const fallback = seedDefaultPayload(values);
-    // Log the skip as a parsed=true event with fallback response
-    await logIntakeSubmission({
-      user_id: user.id,
-      goal: values.goal,
-      bedtime_window: values.bedtime_window,
-      routine_text: '(SKIP)',
-      response: fallback,
-      parsed: true
-    });
-    await upsertProfile(user.id, values.preferred_name, values.goal, values.bedtime_window);
-    await insertTimeline(user.id, values.goal, values.bedtime_window, fallback.timeline_json);
-    await upsertRituals(user.id, fallback.seed_rituals);
-    emitEvent('intake_supabase_upsert_success', { tables: 'user_profile,timelines,rituals', mode: 'skip' });
-    emitEvent('intake_complete_redirect', { destination: '/home.html' });
-    location.href = '/home.html';
-  } catch (err) {
-    console.error(err);
-    emitEvent('intake_parse_error', { error_stage: 'skip', error_code: err?.message?.slice(0, 64) });
-    showBanner(err.message || 'Could not complete skip flow.', 'warn');
-    setBusy(false);
-  }
-});
 
 // Screen view
 emitEvent('intake_view', { screen_name: 'intake' });
