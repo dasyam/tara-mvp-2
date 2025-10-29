@@ -13,6 +13,7 @@ export default defineConfig({
         systemmap: resolve(__dirname, 'systemmap.html'),
         insights:  resolve(__dirname, 'insights.html'),
         profile:   resolve(__dirname, 'profile.html'),
+        intake:  resolve(__dirname, "intake.html"),
       }
     }
   }
