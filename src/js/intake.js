@@ -118,6 +118,22 @@ async function happyRedirect() {
   location.href = '/home.html';
 }
 
+// Log raw + parsed intake for analytics/audit
+async function logIntakeSubmission({ user_id, goal, bedtime_window, routine_text, response, parsed }) {
+  const { error } = await supabase
+    .from('intake_submissions')
+    .insert({
+      user_id,
+      goal: goal || null,
+      bedtime_window: bedtime_window || null,
+      routine_text: routine_text || null,
+      parsed: !!parsed,
+      response: response || null
+    });
+  if (error) throw new Error(`Intake log failed: ${error.message}`);
+}
+
+
 function seedDefaultPayload(values) {
   // Fallback if user clicks Skip
   return {
@@ -154,24 +170,41 @@ form?.addEventListener('submit', async (e) => {
 
   try {
     setBusy(true, 'Parsing your routine...');
-    const parsed = await callParseAPI({
+    
+    // Prepare payload
+    const payload = {
       preferred_name: values.preferred_name,
       goal: values.goal,
       bedtime_window: values.bedtime_window,
       routine_text: values.routine_text
-    });
+    };
+
+    // Call API with payload
+    const parsed = await callParseAPI(payload);
     emitEvent('intake_parse_success', {
       anchors_count: parsed?.timeline_json?.anchors?.length || 0,
       rituals_count: parsed?.seed_rituals?.length || 0
     });
 
     setBusy(true, 'Saving to your profile...');
+    // Log the intake (raw + parsed) before mutating runtime tables
+    await logIntakeSubmission({
+      user_id: user.id,
+      goal: values.goal,
+      bedtime_window: values.bedtime_window,
+      routine_text: values.routine_text,
+      response: parsed,
+      parsed: true
+    });
+
     await upsertProfile(user.id, values.preferred_name, values.goal, values.bedtime_window);
     await insertTimeline(user.id, values.goal, values.bedtime_window, parsed.timeline_json);
     await upsertRituals(user.id, parsed.seed_rituals);
 
     emitEvent('intake_supabase_upsert_success', { tables: 'user_profile,timelines,rituals' });
-    await happyRedirect();
+    // Redirect to Home after successful onboarding
+    emitEvent('intake_complete_redirect', { destination: '/home.html' });
+    location.href = '/home.html';
   } catch (err) {
     console.error(err);
     emitEvent('intake_parse_error', { error_stage: 'submit', error_code: err?.message?.slice(0, 64) });
@@ -198,11 +231,21 @@ skipBtn?.addEventListener('click', async () => {
   try {
     setBusy(true, 'Seeding defaults...');
     const fallback = seedDefaultPayload(values);
+    // Log the skip as a parsed=true event with fallback response
+    await logIntakeSubmission({
+      user_id: user.id,
+      goal: values.goal,
+      bedtime_window: values.bedtime_window,
+      routine_text: '(SKIP)',
+      response: fallback,
+      parsed: true
+    });
     await upsertProfile(user.id, values.preferred_name, values.goal, values.bedtime_window);
     await insertTimeline(user.id, values.goal, values.bedtime_window, fallback.timeline_json);
     await upsertRituals(user.id, fallback.seed_rituals);
     emitEvent('intake_supabase_upsert_success', { tables: 'user_profile,timelines,rituals', mode: 'skip' });
-    await happyRedirect();
+    emitEvent('intake_complete_redirect', { destination: '/home.html' });
+    location.href = '/home.html';
   } catch (err) {
     console.error(err);
     emitEvent('intake_parse_error', { error_stage: 'skip', error_code: err?.message?.slice(0, 64) });
