@@ -18,7 +18,7 @@ export async function requireAuth(redirectTo = "/login.html") {
       await supabase.auth.exchangeCodeForSession(href);
       // Clean URL (keep path, drop tokens)
       const clean = new URL(window.location.origin + window.location.pathname + window.location.search);
-      window.history.replaceState({}, "", clean);
+      window.history.replaceState({}, "", clean.toString());
     } catch (err) {
       console.error("exchangeCodeForSession failed", err);
       // Fall through; requireAuth will redirect if no session
@@ -33,6 +33,47 @@ export async function requireAuth(redirectTo = "/login.html") {
     window.location.href = redirectTo;
     return null;
   }
+
+  // ---------- Onboarding enforcement ----------
+  // If the user is logged in, ensure they complete Intake before accessing the app.
+  // "Completed" means: at least one row exists in public.timelines for this user.
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    const path = window.location.pathname;
+    const onIntake = path.endsWith("/intake.html") || path.endsWith("intake.html");
+
+    // Lightweight existence check
+    const { data: tl, error: tlErr } = await supabase
+      .from("timelines")
+      .select("id")
+      .eq("user_id", user.id)
+      .limit(1);
+
+    // If query fails, default to locking user in Intake (safer)
+    const hasTimeline = !tlErr && Array.isArray(tl) && tl.length > 0;
+
+    // If not completed, force /intake.html (except when already there)
+    if (!hasTimeline && !onIntake && !onLoginPage) {
+      window.location.replace("/intake.html");
+      return null;
+    }
+
+    // If completed and user somehow visits /intake.html, send them to Home
+    if (hasTimeline && onIntake) {
+      window.location.replace("/home.html");
+      return null;
+    }
+  } catch (e) {
+    // If anything goes wrong, keep the user on Intake to ensure onboarding
+    const path = window.location.pathname;
+    const onIntake = path.endsWith("/intake.html") || path.endsWith("intake.html");
+    const onLogin = path.endsWith("/login.html") || path.endsWith("login.html");
+    if (!onIntake && !onLogin) {
+      window.location.replace("/intake.html");
+      return null;
+    }
+  }
+  
   return session;
 }
 
