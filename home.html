@@ -65,6 +65,7 @@
       })();
     import { requireAuth } from "./src/js/app.js";
     import { renderNodes, setupEmojiRow } from "./src/js/home.js";
+    
     await requireAuth();
     renderNodes();
     setupEmojiRow();
