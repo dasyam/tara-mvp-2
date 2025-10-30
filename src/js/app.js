@@ -73,6 +73,7 @@ export async function requireAuth(redirectTo = "/login.html") {
 }
 
 
+
 export async function onLogout() {
   await supabase.auth.signOut();
   emitEvent("logout");
