@@ -13,7 +13,7 @@ import { mapUserGoalToCanonical, canonicalOrMixed } from '../src/lib/delta/goalM
 import { normalizeAnchors } from '../src/lib/delta/normalizeAnchors.js';
 import { computeTop3 } from '../src/lib/delta/computeTop3.js';
 
-export const config = { runtime: 'nodejs20.x' };
+// export const config = { runtime: 'nodejs20.x' };
 
 
 const ENGINE_VERSION = 'v1.0';
