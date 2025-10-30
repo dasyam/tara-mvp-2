@@ -4,10 +4,17 @@
 // Client must send Authorization: Bearer <supabase access token>
 
 import { createClient } from '@supabase/supabase-js';
-import idealMap from '../src/data/ideal-sleep.json' assert { type: 'json' };
+// import idealMap from '../src/data/ideal-sleep.json' assert { type: 'json' };
+import { readFile } from 'node:fs/promises';
+const cfg = JSON.parse(
+  await readFile(new URL('../src/data/ideal-sleep.json', import.meta.url), 'utf-8')
+);
 import { mapUserGoalToCanonical, canonicalOrMixed } from '../src/lib/delta/goalMap.js';
 import { normalizeAnchors } from '../src/lib/delta/normalizeAnchors.js';
 import { computeTop3 } from '../src/lib/delta/computeTop3.js';
+
+export const config = { runtime: 'nodejs20.x' };
+
 
 const ENGINE_VERSION = 'v1.0';
 
