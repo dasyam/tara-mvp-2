@@ -1,6 +1,74 @@
 [
-  { "category": "Sleep",   "time_block": "Evening", "name": "Evening Unwind",  "tagline": "Digital cutoff improves sleep", "color": "blue",   "active": true },
-  { "category": "Sleep",   "time_block": "Night",   "name": "Bedroom Setup",   "tagline": "Cool, dark, quiet room",         "color": "blue",   "active": true },
-  { "category": "Mind",    "time_block": "Morning", "name": "Morning Calm",    "tagline": "10-min walk improves focus",     "color": "purple", "active": true },
-  { "category": "Food",    "time_block": "Day",     "name": "Caffeine Cutoff", "tagline": "Stop by 2 PM",                    "color": "green",  "active": true }
+  {
+    "id": "early_dinner",
+    "block": "18-20",
+    "system_block": "Evening",
+    "impact": 5,
+    "effort": 2,
+    "goal_weights": { "sleep_latency": 1.0, "wake_freshness": 0.6, "consistency": 0.7 },
+    "category": "food",
+    "ritual_name": "Early, light dinner",
+    "why": "Late meals can delay sleep onset.",
+    "how_to": "Finish dinner by 8 PM; keep it light."
+  },
+  {
+    "id": "dim_lights_2030",
+    "block": "20-21",
+    "system_block": "Evening",
+    "impact": 5,
+    "effort": 1,
+    "goal_weights": { "sleep_latency": 0.9, "wake_freshness": 0.8, "consistency": 0.8 },
+    "category": "sleep",
+    "ritual_name": "Dim lights at 20:30",
+    "why": "Bright light at night suppresses melatonin.",
+    "how_to": "Use warm lights and reduce brightness after 20:30."
+  },
+  {
+    "id": "no_screens_60m",
+    "block": "21-22",
+    "system_block": "Night",
+    "impact": 5,
+    "effort": 2,
+    "goal_weights": { "sleep_latency": 1.0, "wake_freshness": 0.7, "consistency": 0.8 },
+    "category": "mind",
+    "ritual_name": "No screens 60m before bed",
+    "why": "Screens before bed delay sleep timing.",
+    "how_to": "Stop screens 60 min before lights out."
+  },
+  {
+    "id": "cool_room",
+    "block": "21-22",
+    "system_block": "Night",
+    "impact": 4,
+    "effort": 1,
+    "goal_weights": { "sleep_latency": 0.8, "wake_freshness": 0.6, "consistency": 0.7 },
+    "category": "sleep",
+    "ritual_name": "Cool, dark bedroom",
+    "why": "Slightly cooler rooms aid sleep onset.",
+    "how_to": "Ensure room is cool and blackout curtains close."
+  },
+  {
+    "id": "sunlight_30m",
+    "block": "06-07",
+    "system_block": "Morning",
+    "impact": 5,
+    "effort": 1,
+    "goal_weights": { "sleep_latency": 0.6, "wake_freshness": 1.0, "consistency": 0.9 },
+    "category": "sleep",
+    "ritual_name": "Sunlight within 60m of wake",
+    "why": "Morning light anchors circadian rhythm.",
+    "how_to": "Go outside for 5–10 minutes after wake."
+  },
+  {
+    "id": "caffeine_cutoff_14",
+    "block": "12-18",
+    "system_block": "Day",
+    "impact": 4,
+    "effort": 1,
+    "goal_weights": { "sleep_latency": 0.7, "wake_freshness": 0.8, "consistency": 0.8 },
+    "category": "food",
+    "ritual_name": "Caffeine cutoff by 2 PM",
+    "why": "Late caffeine disrupts sleep.",
+    "how_to": "No caffeine after 14:00."
+  }
 ]
