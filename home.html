@@ -31,7 +31,7 @@
       <div id="nodes" class="grid grid-cols-1 gap-3"></div>
     </section>
 
-    // The top 3 from the engine being rendered
+    
     <section class="mt-6">
       <h2 class="text-lg font-semibold mb-2">Tonight’s Focus</h2>
       <ul id="top3-list"></ul>
@@ -65,7 +65,7 @@
       })();
     import { requireAuth } from "./src/js/app.js";
     import { renderNodes, setupEmojiRow } from "./src/js/home.js";
-    
+
     await requireAuth();
     renderNodes();
     setupEmojiRow();
