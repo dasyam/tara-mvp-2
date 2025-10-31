@@ -101,14 +101,7 @@ export default async function handler(req) {
         "bedtime_window": "string",
         "anchors": [{"name":"string","time":"HH:MM","confidence":0.0}],
         "notes": "string"
-      },
-      "seed_rituals": [{
-        "name":"string",
-        "tagline":"string",
-        "category":"Food|Movement|Mind|Sleep",
-        "time_block":"Morning|Day|Evening|Night",
-        "color":"string optional"
-      }]
+      }
     }`
   ].join('\n');
 
