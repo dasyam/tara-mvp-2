@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase.js';
-import { emitEvent } from './events.js';
+import { emitEvent } from '../lib/analytics.js';
 
 const form = document.getElementById('intakeForm');
 const banner = document.getElementById('intakeBanner');

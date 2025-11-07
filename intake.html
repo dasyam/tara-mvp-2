@@ -9,6 +9,10 @@
   <title>Onboarding • Tara</title>
   <link rel="icon" type="image/svg+xml" href="/public/assets/logo.svg" />
   <link rel="stylesheet" href="/src/styles/tailwind.css" />
+
+  <style>html.pre-auth{visibility:hidden}</style>
+  <script>document.documentElement.classList.add('pre-auth');</script>
+
 </head>
 <body class="bg-white min-h-screen text-slate-900">
   <!-- Onboarding wrapper: no app nav, focused flow -->
@@ -95,6 +99,8 @@
     import { requireAuth } from "./src/js/app.js";
     import "./src/js/intake.js";
     await requireAuth();
+    // ✅ Unhide ONLY if we stayed on Intake (no redirect happened)
+    document.documentElement.classList.remove('pre-auth');
   </script>
 </body>
 </html>
