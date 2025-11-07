@@ -3,6 +3,7 @@ import { ui } from "../lib/ui.js";
 import { emitEvent } from "../lib/analytics.js";
 import { supabase } from "../lib/supabase.js";
 import seedNodes from "../data/seed-glowing-nodes.json";
+import { maybeRenderWinddownEntry, maybeRenderMorningCheck } from "./winddown.js";
 
 const EMOJI_MAP = ["😞","😐","🙂","😄","🌞"]; // 1..5
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -130,6 +131,13 @@ export async function renderNodes() {
   }
 }
 
+export async function afterHomeRender() {
+  // Show morning micro check first if needed
+  await maybeRenderMorningCheck("#nodes");
+  // Then show winddown entry card if applicable
+  await maybeRenderWinddownEntry("#nodes");
+}
+
 export function setupEmojiRow() {
   const row = document.querySelector("#emoji-row");
   const submit = document.querySelector("#submit-rating");
@@ -193,3 +201,9 @@ export function setupEmojiRow() {
     }
   });
 }
+
+// Ensure it runs after page init
+document.addEventListener("DOMContentLoaded", () => {
+  // assuming you already call renderNodes in your code
+  setTimeout(() => afterHomeRender(), 50);
+});
