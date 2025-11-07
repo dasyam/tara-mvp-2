@@ -6,7 +6,7 @@ import { renderSystemMap } from "./map.js";
 initAnalytics();
 
 export async function requireAuth(redirectTo = "/login.html") {
-  // Handle magic-link params in both query and hash
+  // --- Magic-link / token-in-URL handling (query or hash) ---
   const href = window.location.href;
   const hasMagicParams =
     href.includes("code=") ||
@@ -16,66 +16,63 @@ export async function requireAuth(redirectTo = "/login.html") {
   if (hasMagicParams) {
     try {
       await supabase.auth.exchangeCodeForSession(href);
-      // Clean URL (keep path, drop tokens)
+      // Clean URL (keep path + query, drop tokens)
       const clean = new URL(window.location.origin + window.location.pathname + window.location.search);
       window.history.replaceState({}, "", clean.toString());
     } catch (err) {
       console.error("exchangeCodeForSession failed", err);
-      // Fall through; requireAuth will redirect if no session
+      // fall through; we'll redirect if no session
     }
   }
 
+  // --- Session gate ---
   const { data: { session } } = await supabase.auth.getSession();
+  const path = window.location.pathname;
+  const onLogin = path.endsWith("/login.html") || path.endsWith("login.html");
+  const onIntake = path.endsWith("/intake.html") || path.endsWith("intake.html");
 
-  // Prevent redirect loop on the login page
-  const onLoginPage = window.location.pathname.endsWith("login.html");
-  if (!session && !onLoginPage) {
-    window.location.href = redirectTo;
+  if (!session) {
+    if (!onLogin) window.location.href = redirectTo;
     return null;
   }
 
-  // ---------- Onboarding enforcement ----------
-  // If the user is logged in, ensure they complete Intake before accessing the app.
-  // "Completed" means: at least one row exists in public.timelines for this user.
+  // --- Onboarding enforcement with Intake-flash fix ---
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    const path = window.location.pathname;
-    const onIntake = path.endsWith("/intake.html") || path.endsWith("intake.html");
+    const user_id = session.user.id;
 
-    // Lightweight existence check
-    const { data: tl, error: tlErr } = await supabase
-      .from("timelines")
-      .select("id")
-      .eq("user_id", user.id)
-      .limit(1);
+    // Lightweight existence checks
+    const [tlRes, erRes] = await Promise.all([
+      supabase.from("timelines").select("id").eq("user_id", user_id).limit(1),
+      supabase.from("engine_runs").select("id").eq("user_id", user_id).limit(1)
+    ]);
 
-    // If query fails, default to locking user in Intake (safer)
-    const hasTimeline = !tlErr && Array.isArray(tl) && tl.length > 0;
+    const hasTimeline = Array.isArray(tlRes.data) && tlRes.data.length > 0 && !tlRes.error;
+    const hasEngine = Array.isArray(erRes.data) && erRes.data.length > 0 && !erRes.error;
+    const onboarded = hasTimeline || hasEngine;
 
-    // If not completed, force /intake.html (except when already there)
-    if (!hasTimeline && !onIntake && !onLoginPage) {
+    // If NOT onboarded → force Intake (unless already there or on login)
+    if (!onboarded && !onIntake && !onLogin) {
       window.location.replace("/intake.html");
       return null;
     }
 
-    // If completed and user somehow visits /intake.html, send them to Home
-    if (hasTimeline && onIntake) {
+    // If onboarded and user hits Intake → send to Home
+    if (onboarded && onIntake) {
       window.location.replace("/home.html");
       return null;
     }
   } catch (e) {
-    // If anything goes wrong, keep the user on Intake to ensure onboarding
-    const path = window.location.pathname;
-    const onIntake = path.endsWith("/intake.html") || path.endsWith("intake.html");
-    const onLogin = path.endsWith("/login.html") || path.endsWith("login.html");
+    // Conservative fallback: keep user on Intake unless already on login
     if (!onIntake && !onLogin) {
       window.location.replace("/intake.html");
       return null;
     }
   }
-  
+
   return session;
 }
+
+
 
 export async function onLogout() {
   await supabase.auth.signOut();
