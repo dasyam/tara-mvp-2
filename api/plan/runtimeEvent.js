@@ -1,31 +1,21 @@
 export const config = { runtime: 'edge' };
-
-import { createClient } from '@supabase/supabase-js';
-
-function supabaseFromReq(req) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
-  const token = req.headers.get('authorization')?.replace('Bearer ', '');
-  const client = createClient(url, anon, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-    auth: { persistSession: false, detectSessionInUrl: false }
-  });
-  return client;
-}
+import { supabaseFromRequest } from '../_supabaseEdgeClient.js';
 
 export default async function handler(req) {
   if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
-  const supabase = supabaseFromReq(req);
+
+  let supabase;
+  try { supabase = supabaseFromRequest(req); }
+  catch (e) { return new Response(e.message, { status: 500 }); }
+
   let body;
   try { body = await req.json(); } catch { return new Response('Bad JSON', { status: 400 }); }
-
   const { plan_id, action, reason } = body || {};
   if (!plan_id || !action) return new Response(JSON.stringify({ error: 'Missing fields' }), { status: 422 });
 
   const { data: { user }, error: uErr } = await supabase.auth.getUser();
   if (uErr || !user) return new Response('Unauthorized', { status: 401 });
 
-  // Fetch plan to ensure ownership
   const { data: plan, error: pErr } = await supabase
     .from('evening_plans')
     .select('id, user_id')
@@ -36,7 +26,7 @@ export default async function handler(req) {
 
   let patch = {};
   if (action === 'shield_done') patch = { completed_evening: 'done' };
-  if (action === 'shield_snooze') patch = {}; // handled client side by rescheduling
+  if (action === 'shield_snooze') patch = {}; // client handles reschedule
   if (action === 'shield_skip') patch = { completed_evening: 'skipped', skip_reason: reason || null };
 
   if (Object.keys(patch).length > 0) {

@@ -1,9 +1,10 @@
 import { supabase } from "../lib/supabase.js";
 import { emitEvent } from "../lib/analytics.js";
-import template from "../data/interventions/no-screens-60m.json?raw";
+import INTERVENTION from "../data/interventions/no-screens-60m.json"; 
 
 // Helper: parse template json at build time
 const INTERVENTION = JSON.parse(template);
+
 
 // IST helpers
 export function todayIST() {
@@ -64,6 +65,25 @@ async function getTonightPlan() {
     .maybeSingle();
   return data || null;
 }
+
+async function engineSuggestsNoScreens() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+  const { data, error } = await supabase
+    .from("engine_runs")
+    .select("top3_json")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return false;
+  const items = data.top3_json || [];
+  return items.some(it =>
+    /no[\s_-]?screens/i.test(it.ritual_name || "") ||
+    /no[\s_-]?screens/i.test(it.id || "")
+  );
+}
+
 
 // Shield default time rule: bedtime_target - 60 min or fallback 22:00
 function defaultShieldTimeFromTimeline(timeline_json) {
@@ -213,33 +233,39 @@ const state = {
 export async function maybeRenderWinddownEntry(containerSel = "#nodes") {
   try {
     const plan = await getTonightPlan();
-    if (plan) return; // already planned
+    if (plan) return;
 
-    // Simple check: look for ritual “No screens 60m” active or engine last run includes it.
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+
+    let show = false;
+
+    // Check active rituals
     const { data: rituals } = await supabase
       .from("rituals")
-      .select("name, active, time_block")
+      .select("name, active")
       .eq("user_id", user.id)
       .eq("active", true)
-      .limit(10);
-    const hasNoScreens = (rituals || []).some(r => /no screens/i.test(r.name));
-    if (!hasNoScreens) return;
+      .limit(20);
+    if ((rituals || []).some(r => /no[\s_-]?screens/i.test(r.name))) show = true;
 
-    // Render card
+    // Fallback to engine_runs if not found
+    if (!show) show = await engineSuggestsNoScreens();
+
+    if (!show) return;
+
     const card = mountHTML(containerSel, entryCardHTML());
     if (!card) return;
+
     document.getElementById("wd-build-btn").addEventListener("click", async () => {
       emitEvent("wb_builder_start", { card_id: "no_screens_60m" });
       const profile = await getUserProfile();
       const tline = await getLatestTimeline();
       openBuilder(profile, tline);
     });
-  } catch (e) {
-    // silent
-  }
+  } catch {}
 }
+
 
 function openBuilder(profile, timeline_json) {
   const sheet = mountHTML("body", builderSheetHTML(profile, timeline_json));

@@ -206,4 +206,8 @@ export function setupEmojiRow() {
 document.addEventListener("DOMContentLoaded", () => {
   // assuming you already call renderNodes in your code
   setTimeout(() => afterHomeRender(), 50);
+  await renderNodes();
+  // then wind-down UI
+  await maybeRenderMorningCheck("#nodes");
+  await maybeRenderWinddownEntry("#nodes");
 });
