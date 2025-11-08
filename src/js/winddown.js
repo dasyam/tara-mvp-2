@@ -2,8 +2,6 @@ import { supabase } from "../lib/supabase.js";
 import { emitEvent } from "../lib/analytics.js";
 import INTERVENTION from "../data/interventions/no-screens-60m.json"; 
 
-// Helper: parse template json at build time
-const INTERVENTION = JSON.parse(template);
 
 
 // IST helpers
