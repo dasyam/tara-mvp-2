@@ -1,11 +1,12 @@
-export const config = { runtime: 'edge' };
+// ❌ Remove this line from the helper file (keep it only in route files)
+// export const config = { runtime: 'edge' };
 
 import { createClient } from '@supabase/supabase-js';
 
 /**
  * Create a Supabase client for Edge API routes.
- * Requires SUPABASE_URL and SUPABASE_ANON_KEY to be set in Vercel env.
- * Passes the user's Bearer token through for RLS.
+ * Reads SUPABASE_URL / SUPABASE_ANON_KEY from env.
+ * Forwards the caller's Bearer token for RLS (`auth.uid()`).
  */
 export function supabaseFromRequest(req) {
   const url =
@@ -22,17 +23,24 @@ export function supabaseFromRequest(req) {
     throw new Error('Supabase env missing: set SUPABASE_URL and SUPABASE_ANON_KEY');
   }
 
-  const token = req.headers.get('authorization')?.replace('Bearer ', '') || '';
+  // Headers on Vercel are case-insensitive; read both just in case.
+  const authHeader =
+    req.headers.get('authorization') ||
+    req.headers.get('Authorization') ||
+    '';
 
-  const client = createClient(url, anon, {
+  return createClient(url, anon, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
     global: {
       headers: {
         apikey: anon,
-        Authorization: token ? `Bearer ${token}` : undefined
-      }
+        // Pass through exactly as received (should already be "Bearer <jwt>")
+        ...(authHeader ? { Authorization: authHeader } : {}),
+      },
     },
-    auth: { persistSession: false, detectSessionInUrl: false }
   });
-
-  return client;
 }

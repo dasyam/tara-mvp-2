@@ -560,6 +560,10 @@ export async function maybeRenderMorningCheck(containerSel = "#nodes") {
     if (res.ok) {
       emitEvent("wb_debrief_submit", { result, rating });
       card.remove();
+    }else {
+     // NEW: surface the exact error body in console for quick diagnosis
+     const errBody = await res.json().catch(() => ({}));
+     console.error("morning POST failed", res.status, errBody);
     }
   });
 }
