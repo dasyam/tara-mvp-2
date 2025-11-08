@@ -2,8 +2,6 @@ import { supabase } from "../lib/supabase.js";
 import { emitEvent } from "../lib/analytics.js";
 import INTERVENTION from "../data/interventions/no-screens-60m.json"; 
 
-
-
 // IST helpers
 export function todayIST() {
   return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }); // YYYY-MM-DD
@@ -82,16 +80,13 @@ async function engineSuggestsNoScreens() {
   );
 }
 
-
 // Shield default time rule: bedtime_target - 60 min or fallback 22:00
 function defaultShieldTimeFromTimeline(timeline_json) {
   const bedtime = timeline_json?.bedtime_target || "22:00";
   const bedtimeM = hmStringToMinutes(bedtime);
   const shieldM = bedtimeM - 60;
   const hm = minutesToHM(shieldM);
-  // Fallback to 22:00 if shield time is after 22:00 and earlier rule prefers earlier
   const fallback = "22:00";
-  // Spec: tie to bedtime - 60, or fallback 22:00 if earlier
   return hm || fallback;
 }
 
@@ -116,9 +111,10 @@ function builderSheetHTML(profile, timeline_json) {
 
   const defaultShieldTime = defaultShieldTimeFromTimeline(timeline_json);
 
+  // CHANGED: add z-40 to overlay and z-50 + text-zinc-100 to panel
   return `
-  <div id="wd-sheet" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end">
-    <div class="w-full rounded-t-2xl bg-zinc-950 border-t border-zinc-800 p-4">
+  <div id="wd-sheet" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-end">
+    <div class="z-50 w-full rounded-t-2xl bg-zinc-950 text-zinc-100 border-t border-zinc-800 p-4">
       <div class="h-1.5 w-12 bg-zinc-700 rounded-full mx-auto mb-4"></div>
       <div id="wd-steps">
         <!-- Step 1: Detect -->
@@ -127,17 +123,17 @@ function builderSheetHTML(profile, timeline_json) {
           ${small}
           <div class="mt-3 text-sm font-medium">When does it usually start?</div>
           <div class="mt-2 grid grid-cols-2 gap-2">
-            ${A.map(o => `<button data-key="trigger_time_anchor" data-val="${o}" class="wd-opt btn">${o}</button>`).join("")}
-            <button data-key="trigger_time_anchor" data-val="Other" class="wd-opt btn col-span-2">Other</button>
+            ${A.map(o => `<button data-key="trigger_time_anchor" data-val="${o}" class="wd-opt w-full rounded-lg px-3 py-2 text-left border border-zinc-800 text-zinc-200 hover:bg-zinc-900/60">${o}</button>`).join("")}
+            <button data-key="trigger_time_anchor" data-val="Other" class="wd-opt col-span-2 w-full rounded-lg px-3 py-2 text-left border border-zinc-800 text-zinc-200 hover:bg-zinc-900/60">Other</button>
           </div>
           <input id="wd-other-input" class="mt-2 hidden w-full rounded-lg bg-zinc-900 border border-zinc-800 px-3 py-2 text-sm" maxlength="30" placeholder="Type other…"/>
           <div class="mt-4 text-sm font-medium">Where is the phone then?</div>
           <div class="mt-2 grid grid-cols-2 gap-2">
-            ${B.map(o => `<button data-key="trigger_place" data-val="${o}" class="wd-opt btn">${o}</button>`).join("")}
+            ${B.map(o => `<button data-key="trigger_place" data-val="${o}" class="wd-opt w-full rounded-lg px-3 py-2 text-left border border-zinc-800 text-zinc-200 hover:bg-zinc-900/60">${o}</button>`).join("")}
           </div>
           <div class="mt-4 text-sm font-medium">Tonight I feel mostly…</div>
           <div class="mt-2 grid grid-cols-2 gap-2">
-            ${C.map(o => `<button data-key="trigger_mood" data-val="${o}" class="wd-opt btn">${o}</button>`).join("")}
+            ${C.map(o => `<button data-key="trigger_mood" data-val="${o}" class="wd-opt w-full rounded-lg px-3 py-2 text-left border border-zinc-800 text-zinc-200 hover:bg-zinc-900/60">${o}</button>`).join("")}
           </div>
           <button id="wd-next-disarm" class="mt-4 w-full px-4 py-2 rounded-xl bg-violet-600 text-white disabled:opacity-40" disabled>Next</button>
         </div>
@@ -182,7 +178,7 @@ function runtimeBannerHTML(text, primaryLabel, secondaryLabel, tertiaryLabel) {
   return `
   <div id="wd-runtime" class="fixed bottom-4 inset-x-0 px-4">
     <div class="mx-auto max-w-md rounded-2xl bg-zinc-950 border border-zinc-800 p-4 shadow-lg">
-      <div class="text-sm">${text}</div>
+      <div class="text-sm text-zinc-100">${text}</div>
       <div class="flex gap-2 mt-3">
         <button id="wd-primary" class="flex-1 px-4 py-2 rounded-xl bg-violet-600 text-white">${primaryLabel}</button>
         ${secondaryLabel ? `<button id="wd-secondary" class="px-4 py-2 rounded-xl border border-zinc-700 text-zinc-200">${secondaryLabel}</button>` : ``}
@@ -198,11 +194,11 @@ function morningCardHTML() {
   <div id="wd-morning-card" class="rounded-2xl p-4 bg-zinc-900/60 border border-zinc-800">
     <div class="text-base font-semibold">How was your sleep?</div>
     <div class="flex gap-2 mt-2">
-      ${[1,2,3,4,5].map(n => `<button class="wd-rate btn" data-v="${n}">${n}</button>`).join("")}
+      ${[1,2,3,4,5].map(n => `<button class="wd-rate rounded-lg px-3 py-2 border border-zinc-800 text-zinc-200 hover:bg-zinc-900/60" data-v="${n}">${n}</button>`).join("")}
     </div>
     <div class="text-sm font-medium mt-3">Did the plan happen?</div>
     <div class="flex gap-2 mt-2">
-      ${['Yes','Partly','No'].map(v => `<button class="wd-result btn" data-v="${v.toLowerCase()}">${v}</button>`).join("")}
+      ${['Yes','Partly','No'].map(v => `<button class="wd-result rounded-lg px-3 py-2 border border-zinc-800 text-zinc-200 hover:bg-zinc-900/60" data-v="${v.toLowerCase()}">${v}</button>`).join("")}
     </div>
     <button id="wd-morning-submit" class="mt-3 px-4 py-2 rounded-xl bg-violet-600 text-white disabled:opacity-40" disabled>Submit</button>
   </div>`;
@@ -264,7 +260,6 @@ export async function maybeRenderWinddownEntry(containerSel = "#nodes") {
   } catch {}
 }
 
-
 function openBuilder(profile, timeline_json) {
   const sheet = mountHTML("body", builderSheetHTML(profile, timeline_json));
   if (!sheet) return;
@@ -316,7 +311,7 @@ function openBuilder(profile, timeline_json) {
     );
     const list = sheet.querySelector("#wd-shield-list");
     list.innerHTML = shields.map(s =>
-      `<button class="wd-shield btn" data-id="${s.id}" data-label="${s.label}">${s.label}</button>`
+      `<button class="wd-shield w-full rounded-lg px-3 py-2 text-left border border-zinc-800 text-zinc-200 hover:bg-zinc-900/60" data-id="${s.id}" data-label="${s.label}">${s.label}</button>`
     ).join("");
 
     // selection
@@ -346,7 +341,7 @@ function openBuilder(profile, timeline_json) {
     const mood = state.detect.trigger_mood;
     const swaps = INTERVENTION.divert.by_mood[mood] || [];
     const list = sheet.querySelector("#wd-divert-list");
-    list.innerHTML = swaps.map(s => `<button class="wd-divert btn" data-val="${s}">${s}</button>`).join("");
+    list.innerHTML = swaps.map(s => `<button class="wd-divert w-full rounded-lg px-3 py-2 text-left border border-zinc-800 text-zinc-200 hover:bg-zinc-900/60" data-val="${s}">${s}</button>`).join("");
 
     const cShield = sheet.querySelector("#wd-confirm-shield");
     const cDivert = sheet.querySelector("#wd-confirm-divert");
@@ -494,9 +489,9 @@ function quickSkipReason() {
   <div id="wd-skip" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end">
     <div class="w-full rounded-t-2xl bg-zinc-950 border-t border-zinc-800 p-4">
       <div class="h-1.5 w-12 bg-zinc-700 rounded-full mx-auto mb-3"></div>
-      <div class="text-base font-semibold">What made it hard?</div>
+      <div class="text-base font-semibold text-zinc-100">What made it hard?</div>
       <div class="mt-2 grid grid-cols-1 gap-2">
-        ${opts.map(o => `<button class="wd-skip-opt btn" data-reason="${o}">${o}</button>`).join("")}
+        ${opts.map(o => `<button class="wd-skip-opt w-full rounded-lg px-3 py-2 text-left border border-zinc-800 text-zinc-200 hover:bg-zinc-900/60" data-reason="${o}">${o}</button>`).join("")}
       </div>
       <button id="wd-skip-close" class="w-full mt-3 py-2 text-sm text-zinc-400">Close</button>
     </div>
@@ -527,9 +522,7 @@ function fireSoftBedtimeBanner() {
 
 // Morning micro-check
 export async function maybeRenderMorningCheck(containerSel = "#nodes") {
-  const plan = await getTonightPlan(); // this returns today's plan, but for morning we need yesterday if not submitted yet
-  // Simple: show if there is a plan for today with no completion and now is after 05:00 IST,
-  // or if yesterday plan exists and no completion, but to keep P0 simple we show for today only.
+  const plan = await getTonightPlan(); // P0 simple: show for today
   const card = mountHTML(containerSel, morningCardHTML());
   if (!card) return;
 
@@ -560,10 +553,10 @@ export async function maybeRenderMorningCheck(containerSel = "#nodes") {
     if (res.ok) {
       emitEvent("wb_debrief_submit", { result, rating });
       card.remove();
-    }else {
-     // NEW: surface the exact error body in console for quick diagnosis
-     const errBody = await res.json().catch(() => ({}));
-     console.error("morning POST failed", res.status, errBody);
+    } else {
+      // NEW: surface the exact error body in console for quick diagnosis
+      const errBody = await res.json().catch(() => ({}));
+      console.error("morning POST failed", res.status, errBody);
     }
   });
 }
