@@ -1,6 +1,6 @@
 // api/checkin/morning.js
 export const config = { runtime: 'edge' };
-import { supabaseFromRequest } from '../_supabaseEdgeClient.js';
+import { supabaseFromRequest } from '../_lib/supabaseEdge.js';
 
 /** IST date as YYYY-MM-DD for a Date (default: now) */
 function isoDateIST(d = new Date()) {

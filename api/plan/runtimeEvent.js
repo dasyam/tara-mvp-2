@@ -1,5 +1,5 @@
 export const config = { runtime: 'edge' };
-import { supabaseFromRequest } from '../_supabaseEdgeClient.js';
+import { supabaseFromRequest } from '../_lib/supabaseEdge.js';
 
 export default async function handler(req) {
   if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });

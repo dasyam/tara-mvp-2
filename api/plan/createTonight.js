@@ -1,5 +1,5 @@
 export const config = { runtime: 'edge' };
-import { supabaseFromRequest } from '../_supabaseEdgeClient.js';
+import { supabaseFromRequest } from '../_lib/supabaseEdge.js';
 
 function todayISTISO() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
