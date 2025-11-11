@@ -1,0 +1,75 @@
+{
+  "id": "no_screens_60m",
+  "detect": {
+    "questions": [
+      "When does it usually start?",
+      "Where is the phone then?",
+      "Tonight I feel mostly..."
+    ],
+    "keys": ["trigger_time_anchor", "trigger_place", "trigger_mood"],
+    "options": {
+      "trigger_time_anchor": [
+        "After dinner at the table",
+        "After getting into bed",
+        "After a late work message",
+        "While putting the kid to sleep",
+        "Other"
+      ],
+      "trigger_place": [
+        "In hand",
+        "On bed",
+        "On bedside table",
+        "In another room"
+      ],
+      "trigger_mood": [
+        "Tired",
+        "Wired or anxious",
+        "Lonely or bored",
+        "Reward craving after a long day"
+      ]
+    }
+  },
+  "disarm": {
+    "shields": [
+      { "if": ["After getting into bed"], "id": "charger_living_room", "label": "Place phone on charger in living room", "time_hint": "22:00" },
+      { "if": ["After getting into bed"], "id": "auto_grayscale_22", "label": "Auto-grayscale", "time_hint": "22:00" },
+      { "if": ["After a late work message"], "id": "mute_work_apps", "label": "Mute Slack and Email", "time_hint": "21:45" },
+      { "if": ["After a late work message"], "id": "auto_reply_line", "label": "Set an auto-reply", "time_hint": "21:45" },
+      { "if": ["After dinner at the table"], "id": "family_basket_after_dinner", "label": "Drop phone in family basket", "time_hint": "21:00" }
+    ]
+  },
+  "divert": {
+    "by_mood": {
+      "Tired": [
+        "4-7-8 breath audio, 5 min",
+        "Warm shower checklist",
+        "Two pages of fiction"
+      ],
+      "Wired or anxious": [
+        "Thought unload: 3 lines",
+        "Box breathing, 5 min",
+        "Weighted blanket + music, 10 min"
+      ],
+      "Lonely or bored": [
+        "Call or voice note to a friend, 3 min",
+        "Gratitude list, 3 items",
+        "Gentle stretch audio, 8 min"
+      ],
+      "Reward craving after a long day": [
+        "Herbal tea + chocolate square ritual",
+        "Guided yoga nidra, 10 min",
+        "Two pages of a fun book"
+      ]
+    }
+  },
+  "runtime": {
+    "shield_prompt": true,
+    "bedtime_minus": 60
+  },
+  "skip_reasons": [
+    "Unexpected work ping",
+    "Family need",
+    "Social plan or event",
+    "Low energy / forgot"
+  ]
+}
